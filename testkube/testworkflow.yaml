@@ -1,0 +1,29 @@
+apiVersion: testworkflows.testkube.io/v1
+kind: TestWorkflow
+metadata:
+  name: testkube-io-navigation-playwright
+spec:
+  content:
+    git:
+      uri: https://github.com/olensmar/testkube-io-navigation-playwright-e2e
+      paths:
+        - .
+  container:
+    image: mcr.microsoft.com/playwright:v1.41.2-jammy
+    workingDir: /data/repo
+    resources:
+      requests:
+        cpu: "1"
+        memory: 1Gi
+  steps:
+    - name: Install deps
+      shell: |
+        npm ci
+        npx playwright install --with-deps
+    - name: Run tests
+      shell: |
+        BASE_URL=https://testkube.io npm test
+      artifacts:
+        paths:
+          - playwright-report/**
+          - test-results/**
